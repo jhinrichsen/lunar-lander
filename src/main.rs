@@ -26,9 +26,13 @@ fn intro() {
 
 fn main() {
     intro();
+    // 120
     let L = 0;
+
+    // 130
     println!("{:>10} {:>10} {:>10} {:>10} {:>10}", "SEC", "MI + FT", "MPH", "LB FUEL", "BURN RATE\n");
 
+    // 140
     let A = 120.0;
     let V = 1;
     let M = 33000.0;
@@ -36,6 +40,7 @@ fn main() {
     let G = 1E-03;
     let Z = 1.8;
 
+    // 150
     println!("{:>10} {:>10} {:>10} {:>10} {:>10}", L, A, (5280 * ( A - ((A as i64) as f64)) as i64), 3600 * V, M - N);
 
     //let K = io::stdin().read_line().ok().expect("Failed to read line");
@@ -50,11 +55,17 @@ fn main() {
         }
     };
     let T = 10.0;
+    // 160
     if M - N < 1E-03 {
         // 240
+        println!("FUEL OUT AT {} SECONDS", L);
+        let S = (-V + sqr(V * V + 2 * A * G)) / G
+        // 250
+        V = V + G * S;
+        
     } else {
         if T < 1E-03 {
-            // 150
+            // goto 150
         } else {
             let mut S = T; // 180
             if M >= N + S * K {
@@ -64,6 +75,21 @@ fn main() {
             }
             // 200
             f420();
+            if i <= 0 {
+                // 340
+            }
+            // 210
+            if v <= 0 {
+                // 230
+                f330();
+            }
+            // 220
+            if j < 0 {
+                // 370
+            }
+            // 230
+            f330();
+            // goto 160
         }
     }
 }
