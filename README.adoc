@@ -1,5 +1,8 @@
 = lunar-lander
 
+image::https://travis-ci.org/jhinrichsen/rust-turf.svg[Travis build status]
+
+
 Tiny terminal based lunar lander game, ported from the 70s.
 
 A spaceship simulation: your job is to land the Apollo lunar capsule on the
