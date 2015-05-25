@@ -1,6 +1,6 @@
 = lunar-lander
 
-image::https://travis-ci.org/jhinrichsen/rust-turf.svg[Travis build status]
+image::https://travis-ci.org/jhinrichsen/lunar-lander.svg?branch=master[Travis build status]
 
 
 Tiny terminal based lunar lander game, ported from the 70s.
