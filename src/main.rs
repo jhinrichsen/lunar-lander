@@ -1,3 +1,10 @@
+
+// Allow all uppercase variable names
+#![allow(non_snake_case)]
+#![allow(unused_variables)]
+
+use std::io::{self,BufRead};
+
 fn intro() {
     println!("{:^60}", "LUNAR");
     println!("{:^60}", "CREATIVE COMPUTING MORRISTOWN, NEW JERSEY");
@@ -19,5 +26,47 @@ fn intro() {
 
 fn main() {
     intro();
-    let l = 0;
+    let L = 0;
+    println!("{:>10} {:>10} {:>10} {:>10} {:>10}", "SEC", "MI + FT", "MPH", "LB FUEL", "BURN RATE\n");
+
+    let A = 120.0;
+    let V = 1;
+    let M = 33000.0;
+    let N = 16500.0;
+    let G = 1E-03;
+    let Z = 1.8;
+
+    println!("{:>10} {:>10} {:>10} {:>10} {:>10}", L, A, (5280 * ( A - ((A as i64) as f64)) as i64), 3600 * V, M - N);
+
+    //let K = io::stdin().read_line().ok().expect("Failed to read line");
+    let sin = io::stdin();
+    let s = sin.lock().lines().next().unwrap().unwrap();
+    let input: Option<f64> = s.trim().parse::<f64>().ok();
+    let K = match input {
+        Some(f) => f,
+        None    => {
+            println!("please input a number");
+            return;
+        }
+    };
+    let T = 10.0;
+    if M - N < 1E-03 {
+        // 240
+    } else {
+        if T < 1E-03 {
+            // 150
+        } else {
+            let mut S = T; // 180
+            if M >= N + S * K {
+                // 200
+            } else {
+                S = (M - N) / K; // 190
+            }
+            // 200
+            f420();
+        }
+    }
+}
+
+fn f420() {
 }
