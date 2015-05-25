@@ -19,5 +19,5 @@ fn intro() {
 
 fn main() {
     intro();
+    let l = 0;
 }
-
