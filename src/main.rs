@@ -1,4 +1,4 @@
-fn main() {
+fn intro() {
     println!("{:^60}", "LUNAR");
     println!("{:^60}", "CREATIVE COMPUTING MORRISTOWN, NEW JERSEY");
     println!("\n\n");
@@ -16,3 +16,8 @@ fn main() {
     println!("\n\n");
     println!("GOOD LUCK");
 }
+
+fn main() {
+    intro();
+}
+
