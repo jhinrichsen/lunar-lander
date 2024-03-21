@@ -30,7 +30,8 @@ fn main() {
     let L = 0;
 
     // 130
-    println!("{:>10} {:>10} {:>10} {:>10} {:>10}", "SEC", "MI + FT", "MPH", "LB FUEL", "BURN RATE\n");
+    println!("{:>10} {:>10} {:>10} {:>10} {:>10}",
+        "SEC", "MI + FT", "MPH", "LB FUEL", "BURN RATE\n");
 
     // 140
     let A = 120.0;
@@ -41,7 +42,8 @@ fn main() {
     let Z = 1.8;
 
     // 150
-    println!("{:>10} {:>10} {:>10} {:>10} {:>10}", L, A, (5280 * ( A - ((A as i64) as f64)) as i64), 3600 * V, M - N);
+    println!("{:>10} {:>10} {:>10} {:>10} {:>10}",
+        L, A, (5280 * ( A - ((A as i64) as f64)) as i64), 3600 * V, M - N);
 
     //let K = io::stdin().read_line().ok().expect("Failed to read line");
     let sin = io::stdin();
@@ -62,7 +64,7 @@ fn main() {
         let S = (-V + sqr(V * V + 2 * A * G)) / G
         // 250
         V = V + G * S;
-        
+
     } else {
         if T < 1E-03 {
             // goto 150
