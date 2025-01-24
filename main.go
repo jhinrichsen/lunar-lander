@@ -6,8 +6,8 @@ import (
 )
 
 func main() {
-	var L int
-	var A, V, M, N, G, Z, T, K, S, W, I, J float64
+	var L float64
+	var A, V, M, N, G, Z, T, K, S, W, I, J, O float64
 
 	// Initial setup
 	fmt.Println("\t\tLUNAR")
@@ -36,6 +36,7 @@ func main() {
 	N = 16500
 	G = 1e-03
 	Z = 1.8
+	O = 1.0 // Set some default value for O if needed
 
 	// Print header
 	fmt.Println("SEC MI + FT MPH LB FUEL BURN RATE")
@@ -43,7 +44,7 @@ func main() {
 
 	// Main loop
 	for {
-		fmt.Printf("%d %d %d %d %.2f\n", L, int(A), int(5280*(A-math.Floor(A))), int(3600*V), int(M-N))
+		fmt.Printf("%d %d %d %d %.2f\n", int(L), int(A), int(5280*(A-math.Floor(A))), int(3600*V), int(M-N))
 		fmt.Print("Enter new burn rate: ")
 		_, err := fmt.Scanf("%f", &K)
 		if err != nil {
@@ -78,7 +79,6 @@ func main() {
 			break
 		}
 
-		// Calculate next step
 		// Simulate the loop...
 	}
 
@@ -88,7 +88,7 @@ func main() {
 	L = L + S
 
 	W = 3600 * V
-	fmt.Printf("ON MOON AT %d SECONDS - IMPACT VELOCITY %.2f MPH\n", L, W)
+	fmt.Printf("ON MOON AT %d SECONDS - IMPACT VELOCITY %.2f MPH\n", int(L), W)
 
 	if W <= 1.2 {
 		fmt.Println("PERFECT LANDING!")
