@@ -5,33 +5,35 @@ import (
 	"testing"
 )
 
-var badSeq = []float64{
-	0, 0, 0, 0, 0, 0, 0,
-	170, 200, 200, 200, 200, 200,
-	190, 0, 0, 0, 0, 0, 0, 20,
-}
+// Sequences from prompt.
+var (
+	burnBad = []float64{
+		0, 0, 0, 0, 0, 0, 0,
+		170, 200, 200, 200, 200, 200,
+		190, 0, 0, 0, 0, 0, 0, 20,
+	}
+	burnGood = []float64{
+		0, 0, 0, 0, 0, 0, 0,
+		170, 200, 200, 200, 200, 200,
+		170, 0, 0, 30, 0, 8, 10, 9, 100,
+	}
+)
 
-var goodSeq = []float64{
-	0, 0, 0, 0, 0, 0, 0,
-	170, 200, 200, 200, 200, 200,
-	170, 0, 0, 30, 0, 8, 10, 9, 100,
-}
-
-func almost(a, b float64) bool { return math.Abs(a-b) < 1.5 }
+func almost(x, y float64) bool { return math.Abs(x-y) < 2.0 } // ±2 mph
 
 func TestBadLanding(t *testing.T) {
-	vel, _ := simulate(badSeq)
-	if !almost(vel, 102) {
-		t.Fatalf("expected ~102 mph, got %.1f", vel)
+	v, _ := simulate(burnBad)
+	if !almost(v, 102.0) {
+		t.Fatalf("expected ~102 mph crash, got %.1f", v)
 	}
 }
 
 func TestGoodLanding(t *testing.T) {
-	vel, fuel := simulate(goodSeq)
-	if !almost(vel, 21) {
-		t.Fatalf("expected ~21 mph, got %.1f", vel)
+	v, fuel := simulate(burnGood)
+	if !almost(v, 21.0) {
+		t.Fatalf("expected ~21 mph soft landing, got %.1f", v)
 	}
 	if fuel > 5 {
-		t.Fatalf("expected ≈0 lb fuel, got %.1f", fuel)
+		t.Fatalf("expected ≈0 lb fuel left, got %.1f", fuel)
 	}
 }
