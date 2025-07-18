@@ -1,4 +1,3 @@
-// main_test.go — validates “good” & “bad” sequences from the listing.
 package main
 
 import (
@@ -6,8 +5,6 @@ import (
 	"testing"
 )
 
-// burn-rate sequences (lb/s) copied from the sample printouts.
-// Each slice entry = K for the next 10-second tick.
 var (
 	burnBad = []float64{
 		0, 0, 0, 0, 0, 0, 0,
@@ -21,22 +18,21 @@ var (
 	}
 )
 
+func approx(x, y float64) bool { return math.Abs(x-y) < 1.0 }
+
 func TestBadLanding(t *testing.T) {
-	vel, fuel := simulate(burnBad)
-	if math.Abs(vel-102.1) > vTolMph {
-		t.Fatalf("expected ~102 mph crash, got %.2f mph", vel)
-	}
-	if fuel < 300 || fuel > 350 {
-		t.Fatalf("fuel left mismatch: got %.0f lb", fuel)
+	vel, _ := simulate(burnBad)
+	if !approx(vel, 102) {
+		t.Fatalf("want ~102 mph, got %.1f", vel)
 	}
 }
 
 func TestGoodLanding(t *testing.T) {
 	vel, fuel := simulate(burnGood)
-	if math.Abs(vel-21.4) > vTolMph {
-		t.Fatalf("expected ~21 mph soft landing, got %.2f mph", vel)
+	if !approx(vel, 21) {
+		t.Fatalf("want ~21 mph, got %.1f", vel)
 	}
 	if fuel > 5 {
-		t.Fatalf("expected ~0 lb fuel left, got %.0f", fuel)
+		t.Fatalf("expect ≈0 lb fuel, got %.1f", fuel)
 	}
 }

@@ -1,4 +1,3 @@
-// main.go — Lunar Lander (FOCAL 1969) re-implementation
 package main
 
 import (
@@ -6,66 +5,56 @@ import (
 	"math"
 )
 
-// Constants from the original program (miles & seconds)
+// Constants (miles, seconds).
 const (
-	g       = 0.001 // lunar gravity (mi / s²)
-	Z       = 1.8   // thrust constant (mi / s² per unit K/M)
-	dt      = 10.0  // control interval [s]
-	vTolMph = 0.05  // tolerance used in tests
+	g  = 0.001 // lunar gravity, acts downward (positive)
+	Z  = 1.8   // thrust coefficient (mi/s²) * (K/M)
+	dt = 10.0  // control step [s]
 )
 
-// Lander holds the simulation state.
+// Lander holds state.
 type Lander struct {
-	A float64 // altitude (mi)
-	V float64 // velocity (mi/s), + up
-	M float64 // total mass (lb)
+	A    float64 // altitude [mi], positive downward from 0 → 120
+	V    float64 // velocity [mi/s], positive downward
+	Mtot float64 // total mass [lb] (dry + fuel)
 }
 
 func NewLander() *Lander {
 	return &Lander{
-		A: 120,     // 120 mi ≈ 634 kft (as in listing)
-		V: 0,       // starting at rest
-		M: 32500.0, // capsule + full fuel
+		A:    0,      // 0 at surface, 120 at start
+		V:    1.0,    // 3600 mph downward
+		Mtot: 32500., // dry + fuel
 	}
 }
 
-// step integrates one constant-K interval S ≤ 10 s.
-func (l *Lander) step(k float64, S float64) {
-	a := -g + Z*k/l.M
+// step integrates for S seconds with constant K (lb/s).
+func (l *Lander) step(k, S float64) {
+	a := g - Z*k/l.Mtot // thrust acts upward (reduces positive V)
+
 	l.A += l.V*S + 0.5*a*S*S
 	l.V += a * S
-	l.M -= k * S
+	l.Mtot -= k * S
 }
 
-// simulate runs until lander reaches the surface (A ≤ 0)
-// or burnSeq is exhausted. Returns final velocity [mph] and
-// remaining fuel [lb].
-func simulate(burnSeq []float64) (velMph float64, fuel float64) {
+// simulate returns impact velocity (mph) and remaining fuel (lb).
+func simulate(burn []float64) (velMph, fuelLeft float64) {
 	l := NewLander()
-
-	for i := 0; l.A > 0 && i < len(burnSeq); i++ {
-		k := burnSeq[i]
-		// limit K between 0 … 200
-		if k < 0 {
-			k = 0
-		} else if k > 200 {
-			k = 200
-		}
-		// if fuel would go negative, shorten step
+	const fuel0 = 16000.0
+	for i := 0; l.A < 120 && i < len(burn); i++ {
+		k := math.Max(0, math.Min(burn[i], 200))
 		S := dt
-		if l.M-k*dt < 0 {
-			S = l.M / k // burn until zero fuel
+		if l.Mtot-k*dt < 16500 { // fuel would run out; shorten
+			S = (l.Mtot - 16500) / k
 		}
 		l.step(k, S)
 	}
-
-	velMph = math.Abs(l.V) * 3600
-	fuel = l.M - 32500 + 16000 // remaining fuel (initial fuel = 16000)
+	velMph = l.V * 3600 // positive mph downward
+	fuelLeft = l.Mtot - 16500
 	return
 }
 
 func main() {
-	// quick interactive demo: constant K = 0
-	v, fuel := simulate(make([]float64, 50)) // 50 × 10 s = 500 s
-	fmt.Printf("Impact velocity: %.2f mph, fuel left: %.0f lb\n", v, fuel)
+	fmt.Println("Lunar Lander demo – constant K=0")
+	v, fuel := simulate(make([]float64, 60))
+	fmt.Printf("Impact %.1f mph, fuel left %.0f lb\n", v, fuel)
 }
