@@ -1,8 +1,8 @@
-# Prompt for Evaluating AI IDE/LLM/Agents on the 1969 FOCAL Lunar Lander Simulation
+Prompt for Evaluating AI IDE/LLM/Agents on the 1969 FOCAL Lunar Lander Simulation
 
 You are tasked with evaluating AI models (IDEs, LLMs, agents) based on their capability to handle, translate, and optimize the 1969 FOCAL Lunar Lander simulation.
 
-##  Objective
+Objective
 
 This evaluation has three distinct targets:
 
@@ -14,17 +14,25 @@ Definition of Done (DoD): A clearly structured README.md file including a detail
 
 2. Transpilation from FOCAL to Go 1.24 (Target 2)
 
-Accurately transpile the original 1969 FOCAL source code of the Lunar Lander to modern Go 1.24, fully utilizing the latest features (generics, slices, etc.).
+Accurately transpile the original 1969 FOCAL source code of the Lunar Lander to modern Go 1.24, fully utilizing the latest language features (generics, slices, etc.).
 
-Take special care regarding floating-point arithmetic differences between FOCAL and Go, ensuring high fidelity replication of the original logic and outcomes.
+Take special care regarding floating‑point arithmetic differences between FOCAL and Go, ensuring high‑fidelity replication of the original logic and outcomes.
 
-Provide a detailed explanation of any differences or adjustments required due to floating-point arithmetic disparities.
+Provide a clear explanation of any numerical deviations and how you mitigated them.
 
-Definition of Done (DoD): A runnable and fully tested Go file named main.go, capable of producing simulation outputs that match the behavior and numeric results of the original Lunar Lander implementation as closely as possible, within the constraints of Go’s standard float64 or float128 arithmetic.
+Definition of Done (DoD): A runnable and fully tested Go package that contains:
 
-Optional Recommendation: Extra recognition will be given for implementations using a custom numeric type closely mimicking the original PDP-8/FOCAL floating-point behavior for enhanced historical accuracy.
+main.go — command‑line simulator producing output that matches the historical listing to three significant figures.
 
-3. Self-Optimizing AI Solutions (Target 3)
+main_test.go — two standard Go tests:
+
+TestGoodLanding feeds the documented safe‑landing burn‑rate sequence and asserts the final telemetry matches the sample output.
+
+TestBadLanding feeds the documented crash‑landing sequence and asserts the final telemetry matches the crash sample.
+
+Optional (MAY): extra credit for a custom numeric type emulating PDP‑8/FOCAL floating point. (MAY):** extra credit for a custom numeric type emulating PDP‑8/FOCAL floating point.
+
+3. Self‑Optimizing AI Solutions (Target 3). Self-Optimizing AI Solutions (Target 3)
 
 Develop a self-optimizing implementation that intelligently adjusts its own inputs to achieve:
 
@@ -38,32 +46,10 @@ Clearly outline the AI's optimization strategy, whether it leverages reinforceme
 
 Definition of Done (DoD): Two test functions (TestSoftLanding and TestFuelEfficientLanding) that clearly demonstrate the optimization approaches and provide reproducible evaluation metrics for validation.
 
-## Prerequisites
-
-Ensure the following prerequisites for the implementation:
-
-Go 1.24
-
-Optional: Provide a Makefile if non-Go dependencies are required
-
-Source environment: Fedora 42 DNF5
-
-Linux support required (no considerations for macOS or Windows; Go's cross-platform nature should inherently support this requirement)
-
-Deliverables Summary
-
-Target 1: README.md with Physics Section
-
-Target 2: Fully runnable and tested Go file (main.go)
-
-Target 3: Two clearly defined test functions (TestSoftLanding and TestFuelEfficientLanding) demonstrating robust and repeatable optimization outcomes.
-
-Submit each target separately with detailed documentation for easy validation and reproducibility of your results.
-##  FOCAL Source Code and Examples
+FOCAL Source Code and Examples
 
 Original FOCAL Source Code
 
-```FOCAL
 01.04 T "CONTROL CALLING LUNAR MODULE. MANUAL CONTROL IS NECESSARY"!
 01.06 T "YOU MAY RESET FUEL RATE K EACH 10 SECS TO 0 OR ANY VALUE"!
 01.08 T "BETWEEN 8 & 200 LBS/SEC. YOU'VE 16000 LBS FUEL. ESTIMATED"!
@@ -103,61 +89,56 @@ Original FOCAL Source Code
 08.30 I (I)7.1,7.1;D 6;I (-J)3.1,3.1;I (V)3.1,3.1,8.1
 09.10 S Q=S*K/M;S J=V+G*S+Z*(-Q-Q^2/2-Q^3/3-Q^4/4-Q^5/5)
 09.40 S I=A-G*S*S/2-V*S+Z*S*(Q/2+Q^2/6+Q^3/12+Q^4/20+Q^5/30)
-```
 
-## Example Outputs
+Example Outputs
 
-It is safe to ignore the TRY AGAIN dialog, focus on values and proper formating.
+Below are verbatim outputs from the original PDP‑8/FOCAL program. Use them as ground‑truth for your tests.
 
-### A bad crash landing typically looks like this sample output.
+Bad (Crash) Landing
 
-```
- G
+G
 CONTROL CALLING LUNAR MODULE. MANUAL CONTROL IS NECESSARY
 YOU MAY RESET FUEL RATE K EACH 10 SECS TO 0 OR ANY VALUE
 BETWEEN 8 & 200 LBS/SEC. YOU'VE 16000 LBS FUEL. ESTIMATED
 FREE FALL IMPACT TIME-120 SECS. CAPSULE WEIGHT-32500 LBS
 FIRST RADAR CHECK COMING UP
 
-
 COMMENCE LANDING PROCEDURE
 TIME,SECS   ALTITUDE,MILES+FEET   VELOCITY,MPH   FUEL,LBS   FUEL RATE
-       0            120      0        3660.80     16000.0       K=:0
-      10            109   5016        3636.88     16000.0       K=:0
-      20             99   4224        3672 .80    16000.0       K=:0
-      30             89   2904        3788 .88    16000.0       K=:0
-      40             79   1056        3744.80     16000.0       K=:0
-      50             68   3960         3788.88    16600.0       K=:0
-      60             58   1056        3816.88     16800.0       K=:0
-      70             47   2904        3852.80     16680.0       K=:170
-      80             37   1474        3539.86     14308.0       K=:200
-      90             27   S247        3148.80     12306.0       K=:200
-     100             19   4537        2716.41     10300.0       K=:200
-     110             12   5118        2243.83      8300.0       K=:200
-     120              7   2284        1734.97      6380.0       K=:200
-     130              3   1990        1176.06      4300.0       K=:200
-     140              0   5040         556.96      2308.0       K=:190
-     150              0   1581      -   97.44       400.0       K=:0
-     160              0   2746      -   61.44       400.0       K=:0
-     170              0   3383      -   25.44       400.0       K=:0
-     180              0   3492          10.56       400.0       K=:0
-     190              0   3073          46.56       400.0       K=:0
-     200              0   2126          82.56       400.0       K=:0
-     210              0    652         118.56       400.0       K=:20
+        0            120      0        3660.80     16000.0       K=:0
+       10            109   5016        3636.88     16000.0       K=:0
+       20             99   4224        3672 .80    16000.0       K=:0
+       30             89   2904        3788 .88    16000.0       K=:0
+       40             79   1056        3744.80     16000.0       K=:0
+       50             68   3960        3788.88     16600.0       K=:0
+       60             58   1056        3816.88     16800.0       K=:0
+       70             47   2904        3852.80     16680.0       K=:170
+       80             37   1474        3539.86     14308.0       K=:200
+       90             27   5247        3148.80     12306.0       K=:200
+      100             19   4537        2716.41     10300.0       K=:200
+      110             12   5118        2243.83      8300.0       K=:200
+      120              7   2284        1734.97      6380.0       K=:200
+      130              3   1990        1176.06      4300.0       K=:200
+      140              0   5040         556.96      2308.0       K=:190
+      150              0   1581      -   97.44       400.0       K=:0
+      160              0   2746      -   61.44       400.0       K=:0
+      170              0   3383      -   25.44       400.0       K=:0
+      180              0   3492          10.56       400.0       K=:0
+      190              0   3073          46.56       400.0       K=:0
+      200              0   2126          82.56       400.0       K=:0
+      210              0    652         118.56       400.0       K=:20
 ON THE MOON AT   214.03 SECS
 IMPACT VELOCITY OF   102.180 M.P.H.
 FUEL LEFT:   319.47 LBS
 SORRY,BUT THERE WERE NO SURVIVORS-YOU BLEW IT!
 IN FACT YOU BLASTED A NEW LUNAR CRATER    28.36 FT. DEEP
+
+Good (Safe) Landing
+
+TRY AGAIN?
 (ANS. YES OR NO):YES
 FIRST RADAR CHECK COMING UP
 
-```
-
-### A good landing may look like this sample output.
-Remember there is an multitude of safe landing alternatives.
-
-```
 COMMENCE LANDING PROCEDURE
 TIME, SECS  ALTITUDE,MILES+FEET   VELOCITY,MPH   FUEL,LBS   FUEL RATE
         0           120      0        3600.00     16000.0      K=:0
@@ -189,12 +170,26 @@ IMPACT VELOCITY OF    21.36 M.P.H.
 FUEL LEFT:     0.00 LBS
 CONGRATULATIONS ON A POOR LANDING
 
+Prerequisites
 
+Ensure the following prerequisites for the implementation:
 
-TRY AGAIN?
-(ANS. YES OR NO):N0
-(ANSe YES OR NO):NO
-CONTROL OUT
-```
+Go 1.24
+
+Optional: Provide a Makefile if non-Go dependencies are required
+
+Suggested source environment: Fedora 42 DNF5
+
+Linux support required (no considerations for macOS or Windows; Go's cross-platform nature should inherently support this requirement)
+
+Deliverables Summary
+
+Target 1: README.md with Physics Section
+
+Target 2: main.go and main_test.go with TestGoodLanding and TestBadLanding
+
+Target 3: Two clearly defined test functions (TestSoftLanding and TestFuelEfficientLanding) demonstrating robust and repeatable optimization outcomes.
+
+Submit each target separately with detailed documentation for easy validation and reproducibility of your results.
 
 
