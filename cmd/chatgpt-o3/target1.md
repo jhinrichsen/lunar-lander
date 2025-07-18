@@ -50,22 +50,19 @@ These form a simple **1‑D descent with variable thrust**.
 
 The original program integrates over the pilot‑selected span `S` (nominally 10 s, but shortened when fuel runs out):
 
-1. **Exact constant‑acceleration update** (fuel *does* change linearly, but `K` is constant during `S`):
-   *Velocity*
+1. **Constant‑acceleration step** (fuel *does* change linearly, but `K` is constant during `S`):
 
-   $$
-   V_{t+S} = V_t + a S.\]
+    $$
+    V_{t+S} = V_t + a\,S
+    $$
 
-   *Altitude*
-   \[
-   A_{t+S} = A_t + V_t S + \frac{1}{2} a S^2.
-   $$
+    $$
+    A_{t+S} = A_t + V_t\,S + \frac{1}{2}\,a\,S^{2}
+    $$
 
-2. **Fuel depletion**
-
-   $$
-   M_{t+S} = M_t - K S.
-   $$
+    $$
+    M_{t+S} = M_t - K\,S
+    $$
 
 3. **Safety check**: if `M – N < 0` (fuel exhausted) the program recomputes `S` so fuel hits exactly zero **and** then free‑falls the rest of the way.
 
