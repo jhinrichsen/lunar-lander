@@ -61,23 +61,24 @@ func TestLunarLanderInteractive(t *testing.T) {
 			continue
 		}
 
-		// Extract landing stats
+		// Extract final values
 		if strings.Contains(current, "ON THE MOON AT") {
-			landingTime = extractFloatAfter(current, "ON THE MOON AT", "SEC")
+			landingTime = extractFloatFromLine(current)
 			t.Logf("✅ Landed at %.2f seconds", landingTime)
 			buffer.Reset()
 		}
 		if strings.Contains(current, "IMPACT VELOCITY OF") {
-			impactVelocity = extractFloatAfter(current, "IMPACT VELOCITY OF", "M.P.H.")
+			impactVelocity = extractFloatFromLine(current)
 			t.Logf("🛬 Impact velocity: %.2f MPH", impactVelocity)
 			buffer.Reset()
 		}
 		if strings.Contains(current, "FUEL LEFT:") {
-			fuelLeft = extractFloatAfter(current, "FUEL LEFT:", "LBS")
+			fuelLeft = extractFloatFromLine(current)
 			t.Logf("⛽ Fuel remaining: %.2f lbs", fuelLeft)
 			buffer.Reset()
 		}
 
+		// Respond to YES/NO input prompt
 		if strings.Contains(current, "(ANS. YES OR NO)") {
 			t.Log("↪️ Responding NO to (ANS. YES OR NO)")
 			writer.WriteString("NO\n")
@@ -87,6 +88,7 @@ func TestLunarLanderInteractive(t *testing.T) {
 		}
 	}
 
+	// Clean shutdown
 	go io.Copy(io.Discard, reader)
 
 	if err := cmd.Wait(); err != nil {
@@ -96,24 +98,19 @@ func TestLunarLanderInteractive(t *testing.T) {
 	// Final checks
 	if landingTime == 0 || impactVelocity == 0 {
 		t.Error("❌ Did not extract final landing statistics")
+	} else {
+		t.Logf("🏁 Final Stats — Time: %.2f sec | Velocity: %.2f MPH | Fuel: %.2f lbs",
+			landingTime, impactVelocity, fuelLeft)
 	}
 }
 
-// Helper to extract float after a label and before an end keyword
-func extractFloatAfter(s, after, before string) float64 {
-	start := strings.Index(s, after)
-	if start == -1 {
-		return 0
+// Robust float extractor: gets last float from line
+func extractFloatFromLine(s string) float64 {
+	fields := strings.Fields(s)
+	for i := len(fields) - 1; i >= 0; i-- {
+		if v, err := strconv.ParseFloat(strings.Trim(fields[i], ":;"), 64); err == nil {
+			return v
+		}
 	}
-	start += len(after)
-	end := strings.Index(s[start:], before)
-	if end == -1 {
-		return 0
-	}
-	field := strings.TrimSpace(s[start : start+end])
-	v, err := strconv.ParseFloat(field, 64)
-	if err != nil {
-		return 0
-	}
-	return v
+	return 0
 }
