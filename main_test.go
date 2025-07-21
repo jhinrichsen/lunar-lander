@@ -28,7 +28,6 @@ func TestLunarLanderInteractive(t *testing.T) {
 	reader := bufio.NewReader(stdout)
 	writer := bufio.NewWriter(stdin)
 
-	// Fuel rates to input
 	kInputs := []string{
 		"0", "0", "0", "0", "0", "0", "0",
 		"164.31426784",
@@ -37,6 +36,7 @@ func TestLunarLanderInteractive(t *testing.T) {
 	inputIndex := 0
 
 	var buffer bytes.Buffer
+	var landedPrinted bool
 
 	for {
 		char, err := reader.ReadByte()
@@ -46,31 +46,40 @@ func TestLunarLanderInteractive(t *testing.T) {
 		if err != nil {
 			t.Fatalf("read error: %v", err)
 		}
+
 		buffer.WriteByte(char)
-		output := buffer.String()
+		current := buffer.String()
 
-		// Show character-by-character output
-		t.Logf(">> %q", string(char))
+		// Accumulate printable text until full line/prompt
+		if strings.HasSuffix(current, "K=:") {
+			if inputIndex < len(kInputs) {
+				k := kInputs[inputIndex]
+				t.Logf("PROMPT: %s  → IN: %s", strings.TrimSpace(current), k)
+				writer.WriteString(k + "\n")
+				writer.Flush()
+				inputIndex++
+				buffer.Reset()
+				continue
+			}
+		}
 
-		// Respond when prompt appears
-		if strings.Contains(output, "K=:") && inputIndex < len(kInputs) {
-			k := kInputs[inputIndex]
-			t.Logf("IN: %s", k)
-			writer.WriteString(k + "\n")
+		if strings.Contains(current, "ON THE MOON") && !landedPrinted {
+			t.Log("✅ Landed")
+			landedPrinted = true
+			buffer.Reset()
+		}
+
+		if strings.Contains(current, "(ANS. YES OR NO)") {
+			t.Log("↪️ Responding NO to (ANS. YES OR NO)")
+			writer.WriteString("NO\n")
 			writer.Flush()
-			inputIndex++
 			buffer.Reset()
 			continue
 		}
-
-		if strings.Contains(output, "ON THE MOON") {
-			t.Log("✅ Landed")
-			break
-		}
-		if strings.Contains(output, "IMPACT VELOCITY") {
-			t.Log("✅ Impact data received")
-		}
 	}
+
+	// Drain remaining data
+	go io.Copy(io.Discard, reader)
 
 	if err := cmd.Wait(); err != nil {
 		t.Fatalf("retrofocal exited with error: %v", err)
