@@ -7,7 +7,7 @@ import (
 
 func main() {
 	var L float64
-	var A, V, M, N, G, Z, T, K, S, W, I, J, O float64
+	var A, V, M, N, G, T, K, S, W, I, J, O float64
 
 	// Initial setup
 	fmt.Println("\t\tLUNAR")
@@ -35,7 +35,6 @@ func main() {
 	M = 33000
 	N = 16500
 	G = 1e-03
-	Z = 1.8
 	O = 1.0 // Set some default value for O if needed
 
 	// Print header
@@ -44,7 +43,7 @@ func main() {
 
 	// Main loop
 	for {
-		fmt.Printf("%d %d %d %d %.2f\n", int(L), int(A), int(5280*(A-math.Floor(A))), int(3600*V), int(M-N))
+		fmt.Printf("%d %d %d %d %d\n", int(L), int(A), int(5280*(A-math.Floor(A))), int(3600*V), int(M-N))
 		fmt.Print("Enter new burn rate: ")
 		_, err := fmt.Scanf("%f", &K)
 		if err != nil {

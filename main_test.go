@@ -62,21 +62,31 @@ func TestLunarLanderInteractive(t *testing.T) {
 			continue
 		}
 
-		// Use regex-based extraction with flexible spacing
-		if strings.Contains(current, "ON THE MOON AT") {
-			landingTime = extractWithRegex(current, `ON THE MOON AT\s+([0-9.]+)\s+SEC`)
-			t.Logf("✅ Landed at %.2f seconds", landingTime)
-			buffer.Reset()
-		}
-		if strings.Contains(current, "IMPACT VELOCITY OF") {
-			impactVelocity = extractWithRegex(current, `IMPACT VELOCITY OF\s+([0-9.]+)\s+M\.P\.H\.`)
-			t.Logf("🛬 Impact velocity: %.2f MPH", impactVelocity)
-			buffer.Reset()
-		}
-		if strings.Contains(current, "FUEL LEFT:") {
-			fuelLeft = extractWithRegex(current, `FUEL LEFT:\s+([0-9.]+)\s+LBS`)
-			t.Logf("⛽ Fuel remaining: %.2f lbs", fuelLeft)
-			buffer.Reset()
+		// Check for complete lines and extract values
+		lines := strings.Split(current, "\n")
+		for _, line := range lines {
+			line = strings.TrimSpace(line)
+			if line == "" {
+				continue
+			}
+
+			// Extract landing time
+			if strings.Contains(line, "ON THE MOON AT") && strings.Contains(line, "SECS") {
+				landingTime = extractWithRegex(line, `ON THE MOON AT\s+([0-9.]+)\s+SECS`)
+				t.Logf("✅ Landed at %.2f seconds", landingTime)
+			}
+
+			// Extract impact velocity
+			if strings.Contains(line, "IMPACT VELOCITY OF") && strings.Contains(line, "M.P.H.") {
+				impactVelocity = extractWithRegex(line, `IMPACT VELOCITY OF\s+([0-9.]+)M\.P\.H\.`)
+				t.Logf("🛬 Impact velocity: %.2f MPH", impactVelocity)
+			}
+
+			// Extract fuel left
+			if strings.Contains(line, "FUEL LEFT:") && strings.Contains(line, "LBS") {
+				fuelLeft = extractWithRegex(line, `FUEL LEFT:\s+([0-9.]+)\s+LBS`)
+				t.Logf("⛽ Fuel remaining: %.2f lbs", fuelLeft)
+			}
 		}
 
 		if strings.Contains(current, "(ANS. YES OR NO)") {

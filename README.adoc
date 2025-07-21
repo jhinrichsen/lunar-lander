@@ -2,14 +2,33 @@
 
 image::https://travis-ci.org/jhinrichsen/lunar-lander.svg?branch=master[Travis build status]
 
+NOTE: All kudos, copyright, and thanks go to Dr. Jim Storer, and Martin C. Martin.
 
 Tiny terminal based lunar lander game, ported from the 70s.
 
 A spaceship simulation: your job is to land the Apollo lunar capsule on the
-moon. This is a port of the original lunar lander written in FOCAL. Original
-source code: http://www.vintage-basic.net/bcg/lunar.bas.
+moon. This is a port of the original lunar lander written in FOCAL, written by Jim Storer when he was in high school in 1969 in FOCAL for a DEC pdp8.
+Famous source code in BASIC: http://www.vintage-basic.net/bcg/lunar.bas.
 
 It is ported as close as possible to the original source, so don't take this as
 idiomatic Rust code :-)
 
 There's also a Go version on bitbucket.
+
+== DEC FOCAL
+
+The original source code is available as a DEC FOCAL for PDP-8
+
+5. Running FOCAL today
+Route	How to set it up on a modern Linux box	Good for
+SIMH + paper-tape FOCAL	dnf install simh → simh pdp8 → load focal.bin	100 % original interpreter, runs any historical tape image.
+RetroFOCAL (open-source C port)	git clone https://github.com/maurymarkowitz/RetroFOCAL && make	Quick native binary; feels like FOCAL-69, no emulator needed.
+GitHub
+focal-69 on GitHub	git clone https://github.com/AndrewSav/focal-69 && make	Another clean-room implementation; useful on macOS or BSD too.
+GitHub
+Because the language fits in <10 KB, all of these interpreters launch instantly and happily run on Raspberry Pi or within a Docker container.
+
+== References
+
+https://www.cs.brandeis.edu/~storer/LunarLander/LunarLander.html[Dr. Jim Storer's aggregated documentation]
+https://martincmartin.com/2024/06/14/how-i-found-a-55-year-old-bug-in-the-first-lunar-lander-game/[Martin C. Martin found a bug in 2024]
