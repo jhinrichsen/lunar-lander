@@ -62,24 +62,23 @@ func TestLunarLanderInteractive(t *testing.T) {
 			continue
 		}
 
-		// Use regex-based extraction
+		// Use regex-based extraction with flexible spacing
 		if strings.Contains(current, "ON THE MOON AT") {
-			landingTime = extractWithRegex(current, `ON THE MOON AT ([0-9.]+) SEC`)
+			landingTime = extractWithRegex(current, `ON THE MOON AT\s+([0-9.]+)\s+SEC`)
 			t.Logf("✅ Landed at %.2f seconds", landingTime)
 			buffer.Reset()
 		}
 		if strings.Contains(current, "IMPACT VELOCITY OF") {
-			impactVelocity = extractWithRegex(current, `IMPACT VELOCITY OF ([0-9.]+) M\.P\.H\.`)
+			impactVelocity = extractWithRegex(current, `IMPACT VELOCITY OF\s+([0-9.]+)\s+M\.P\.H\.`)
 			t.Logf("🛬 Impact velocity: %.2f MPH", impactVelocity)
 			buffer.Reset()
 		}
 		if strings.Contains(current, "FUEL LEFT:") {
-			fuelLeft = extractWithRegex(current, `FUEL LEFT: ([0-9.]+) LBS`)
+			fuelLeft = extractWithRegex(current, `FUEL LEFT:\s+([0-9.]+)\s+LBS`)
 			t.Logf("⛽ Fuel remaining: %.2f lbs", fuelLeft)
 			buffer.Reset()
 		}
 
-		// Respond to (ANS. YES OR NO) prompt
 		if strings.Contains(current, "(ANS. YES OR NO)") {
 			t.Log("↪️ Responding NO to (ANS. YES OR NO)")
 			writer.WriteString("NO\n")
@@ -89,22 +88,23 @@ func TestLunarLanderInteractive(t *testing.T) {
 		}
 	}
 
+	// Drain remainder so Wait() can return
 	go io.Copy(io.Discard, reader)
 
 	if err := cmd.Wait(); err != nil {
 		t.Fatalf("retrofocal exited with error: %v", err)
 	}
 
-	// Assert final values were parsed
+	// Final results summary
+	t.Logf("🏁 Final Stats — Time: %.2f sec | Velocity: %.2f MPH | Fuel: %.2f lbs",
+		landingTime, impactVelocity, fuelLeft)
+
 	if landingTime == 0 || impactVelocity == 0 {
 		t.Error("❌ Did not extract final landing statistics")
-	} else {
-		t.Logf("🏁 Final Stats — Time: %.2f sec | Velocity: %.2f MPH | Fuel: %.2f lbs",
-			landingTime, impactVelocity, fuelLeft)
 	}
 }
 
-// Regex-based float extractor using a capture group
+// Regex-based float extractor using capture group
 func extractWithRegex(line, pattern string) float64 {
 	re := regexp.MustCompile(pattern)
 	match := re.FindStringSubmatch(line)
