@@ -57,3 +57,13 @@ clean:
 .PHONY: run
 run:
 	retrofocal lunar-lander.fc
+
+# ─────────────────────────── Verification ───────────────────────────
+# Run the Go port dynamic verification suite (checks parity with retrofocal)
+verify:
+	go test -v ./cmd/antigravity/...
+
+# Run fuzz testing (randomized inputs) to ensure robust 1:1 parity
+# Runs for 30 seconds by default
+fuzz:
+	go test -fuzz=FuzzLanding -fuzztime=30s ./cmd/antigravity/...

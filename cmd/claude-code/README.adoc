@@ -1,0 +1,221 @@
+= Lunar Lander Optimization with Claude Code
+:toc:
+
+== Overview
+
+This document describes the optimization process used to find a perfect landing sequence for the FOCAL lunar lander simulation (`lunar-lander.fc`).
+
+== The Challenge
+
+The lunar lander simulation starts with:
+
+* Altitude: 120 miles
+* Velocity: 1 mile/sec (3600 MPH, falling)
+* Total mass: 32,500 lbs
+* Fuel: 16,000 lbs
+* Gravity constant: 0.001
+* Thrust constant: 1.8
+
+The player inputs a fuel burn rate (K) every 10 seconds. Valid values are 0 or 8-200 lbs/sec.
+
+=== Landing Outcomes
+
+[cols="1,2"]
+|===
+| Impact Velocity | Result
+
+| ≤ 1 MPH | PERFECT LANDING
+| ≤ 10 MPH | Good landing
+| ≤ 22 MPH | Poor landing
+| ≤ 40 MPH | Craft damage
+| ≤ 60 MPH | Crash landing (5 hrs oxygen)
+| > 60 MPH | No survivors
+|===
+
+== Optimization Process
+
+=== Initial Verification
+
+First, verified the simulation works correctly:
+
+[source,bash]
+----
+retrofocal lunar-lander.fc < inputs_good.txt
+----
+
+Result: Good landing at 4.89 MPH.
+
+=== Failed Strategy: Max Burn Throughout
+
+Tested burning at K=200 every step:
+
+----
+FUEL OUT AT    80.00 SECS  (at 79 miles altitude!)
+IMPACT VELOCITY OF  1527.01 M.P.H.
+SORRY,BUT THERE WERE NO SURVIVORS-YOU BLEW IT!
+IN FACT YOU BLASTED A NEW LUNAR CRATER   424.17 FT.DEEP
+----
+
+*Lesson*: Burning fuel early while at high altitude is inefficient. The optimal strategy is to coast during free fall and burn hard near the surface.
+
+=== Iterative Optimization
+
+Starting from the known "good landing" profile, systematically adjusted fuel burn rates:
+
+==== Key Observations
+
+1. **Coast early**: K=0 for first 60 seconds preserves fuel
+2. **Heavy deceleration mid-flight**: K=200 from 70-110 seconds to shed velocity
+3. **Coast again**: Brief coast periods allow gravity to work
+4. **Controlled approach**: K=100 at 140s for moderate deceleration
+5. **Final burn**: Precisely tuned K values at 180s and 190s
+
+==== Fine-tuning the Final Approach
+
+The critical discovery was that the *final two burn rates* determine landing quality:
+
+[cols="2,1,1"]
+|===
+| K at step 180, K at step 190 | Impact Velocity | Result
+
+| 71, 8 | 4.34 MPH | Good
+| 71, 15 | 3.80 MPH | Good
+| 71, 20 | 3.35 MPH | Good
+| 71, 25 | 2.84 MPH | Good
+| 71, 30 | 2.21 MPH | Good
+| 71, 35 | 1.31 MPH | Good
+| *71, 37* | *0.66 MPH* | *PERFECT*
+| 71, 40 | 94.11 MPH | Crash (went up, ran out of fuel)
+|===
+
+== Optimal Solution
+
+=== Burn Sequence
+
+----
+0 0 0 0 0 0 200 200 200 200 200 0 0 100 200 200 0 0 71 37
+----
+
+=== Step-by-Step
+
+[cols="1,1,2,2,1"]
+|===
+| Time (s) | K | Altitude | Velocity (MPH) | Fuel (lbs)
+
+| 0 | - | 120 mi | 3600.00 | 16000.0
+| 10 | 0 | 109 mi 5016 ft | 3636.00 | 16000.0
+| 20 | 0 | 99 mi 4224 ft | 3672.00 | 16000.0
+| 30 | 0 | 89 mi 2904 ft | 3708.00 | 16000.0
+| 40 | 0 | 79 mi 1056 ft | 3744.00 | 16000.0
+| 50 | 0 | 68 mi 3960 ft | 3780.00 | 16000.0
+| 60 | 0 | 58 mi 1056 ft | 3816.00 | 16000.0
+| 70 | 200 | 48 mi 610 ft | 3440.43 | 14000.0
+| 80 | 200 | 39 mi 593 ft | 3036.94 | 12000.0
+| 90 | 200 | 31 mi 1443 ft | 2601.46 | 10000.0
+| 100 | 200 | 24 mi 3664 ft | 2128.97 | 8000.0
+| 110 | 200 | 19 mi 2565 ft | 1613.14 | 6000.0
+| 120 | 0 | 14 mi 5041 ft | 1649.14 | 6000.0
+| 130 | 0 | 10 mi 1710 ft | 1685.14 | 6000.0
+| 140 | 100 | 5 mi 5274 ft | 1426.55 | 5000.0
+| 150 | 200 | 2 mi 4492 ft | 829.85 | 3000.0
+| 160 | 200 | 1 mi 2386 ft | 164.63 | 1000.0
+| 170 | 0 | 4988 ft | 200.63 | 1000.0
+| 180 | 0 | 1781 ft | 236.63 | 1000.0
+| 190 | 71 | 1 ft | 4.24 | 290.0
+| *190.34* | *37* | *0 ft* | *0.66* | *277.6*
+|===
+
+=== Final Result
+
+----
+ON THE MOON AT   190.34 SECS
+IMPACT VELOCITY OF     0.66M.P.H.
+FUEL LEFT:   277.60 LBS
+PERFECT LANDING !-(LUCKY)
+----
+
+== Key Insights
+
+1. **Suicide burn strategy**: Coast until close to the surface, then burn hard. This is fuel-efficient because thrust effectiveness increases as mass decreases (Tsiolkovsky rocket equation).
+
+2. **Fine margins**: The difference between perfect landing (K=37) and crash (K=40) at the final step is just 3 lbs/sec.
+
+3. **Two-stage final approach**: Using K=71 at step 180 brings velocity to ~4 MPH at 1 foot altitude, then K=37 provides the final cushion without going negative (upward) and running out of fuel.
+
+4. **Fuel efficiency**: The perfect landing uses 15,722.4 lbs of the 16,000 lbs available, leaving just 277.6 lbs in reserve.
+
+== Running the Simulation
+
+=== Using FOCAL (retrofocal)
+
+[source,bash]
+----
+echo -e "0\n0\n0\n0\n0\n0\n200\n200\n200\n200\n200\n0\n0\n100\n200\n200\n0\n0\n71\n37\nNO" | retrofocal lunar-lander.fc
+----
+
+=== Using Go Implementation
+
+[source,bash]
+----
+go run ./cmd/claude-code/ <<EOF
+0
+0
+0
+0
+0
+0
+200
+200
+200
+200
+200
+0
+0
+100
+200
+200
+0
+0
+71
+37
+NO
+EOF
+----
+
+== Go Implementation
+
+A complete 1:1 port of the FOCAL simulation is provided in `main.go`.
+
+=== Features
+
+* **Byte-identical output**: For the perfect landing scenario, the Go implementation produces output that is byte-for-byte identical to the FOCAL original running under retrofocal.
+* **State machine architecture**: The control flow matches FOCAL's goto-based structure using a clean state machine.
+* **Taylor series physics**: The thrust calculations use the same 5th-order Taylor series expansion as the original.
+
+=== Testing
+
+The implementation includes comprehensive table-driven tests:
+
+[source,bash]
+----
+go test -v ./cmd/claude-code/
+----
+
+Key test results:
+
+* `TestByteIdentical`: Verifies byte-identical output with retrofocal
+* `TestPerfectLanding`: Confirms the optimal sequence achieves a perfect landing
+* `TestMaxBurnCrash`: Validates crash detection for max burn scenario
+* `TestInvalidInput`: Tests K value validation (must be 0 or 8-200)
+* `TestGoSimulation`: Runs all scenarios through the Go simulator
+
+=== Implementation Notes
+
+The Go code faithfully replicates FOCAL's behavior including:
+
+* Variable names matching FOCAL (A, V, M, N, G, Z, L, T, K, S, I, J, W)
+* FITR function (truncation to integer)
+* Subroutine 9: Taylor series for thrust effect on velocity and altitude
+* Subroutine 6: State variable updates
+* Input validation with "NOT POSSIBLE" message and 51 dots
+* All landing outcome messages matching original text
