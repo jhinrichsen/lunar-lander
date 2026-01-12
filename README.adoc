@@ -4,6 +4,25 @@ image::https://travis-ci.org/jhinrichsen/lunar-lander.svg?branch=master[Travis b
 
 NOTE: All kudos, copyright, and thanks go to Dr. Jim Storer, and Martin C. Martin.
 
+== AI Agent Verification Suite
+
+AI agents probably can't land on the moon yet – so let's start with a simulation. The beginnings of AI meeting the beginnings of moon landings: in 1969, a high school student wrote the first Lunar Lander in FOCAL. In 2025, we use it to test AI agents on two challenges:
+
+1. *Transpilation*: Can the agent understand and port historical FOCAL code to modern Go?
+2. *Soft Landing*: Which agent achieves the softest landing playing the original simulation?
+
+Tested agents:
+
+* Antigravity
+* ChatGPT o3
+* Claude Code
+* Claude Sonnet 4 (via IntelliJ IDEA)
+* Windsurf GPT-4.1
+
+See `cmd/` for implementations and `PROMPT.md` for evaluation criteria.
+
+== About the Game
+
 Tiny terminal based lunar lander game, ported from the 70s.
 
 A spaceship simulation: your job is to land the Apollo lunar capsule on the
